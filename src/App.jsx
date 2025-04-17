@@ -4,6 +4,7 @@ import "./App.css";
 function App() {
   const [expenses, setExpenses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   const handleAddExpense = (e) => {
     e.preventDefault();
@@ -19,17 +20,22 @@ function App() {
   };
 
   const handleDelete = (id) => {
-    setExpenses(expenses.filter(expense => expense.id !== id));
+    setExpenses(expenses.filter((expense) => expense.id !== id));
   };
 
-  const filteredExpenses = expenses.filter(expense =>
+  const filteredExpenses = expenses.filter((expense) =>
     expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     expense.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const sortedExpenses = [...filteredExpenses].sort((a, b) => {
+    if (!sortBy) return 0;
+    return a[sortBy].localeCompare(b[sortBy]);
+  });
+
   return (
     <div className="App">
-      <h1>💰 Expense Tracker</h1>
+      <h1> Expense Tracker</h1>
 
       {/* Search Bar */}
       <input
@@ -38,6 +44,13 @@ function App() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+
+      {/* Sort Selector */}
+      <select onChange={(e) => setSortBy(e.target.value)} value={sortBy}>
+        <option value="">-- Sort By --</option>
+        <option value="description">Description</option>
+        <option value="category">Category</option>
+      </select>
 
       {/* Add Expense Form */}
       <form onSubmit={handleAddExpense}>
@@ -58,7 +71,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {filteredExpenses.map((expense) => (
+          {sortedExpenses.map((expense) => (
             <tr key={expense.id}>
               <td>{expense.description}</td>
               <td>{expense.category}</td>
@@ -68,7 +81,7 @@ function App() {
               </td>
             </tr>
           ))}
-          {filteredExpenses.length === 0 && (
+          {sortedExpenses.length === 0 && (
             <tr>
               <td colSpan="4">No expenses found.</td>
             </tr>
